@@ -1,0 +1,72 @@
+<!-- 
+    TopParamsReader Parent Window Integration
+    
+    Add this to your Canvas App's HTML Text control to enable
+    cross-origin communication with the TopParamsReader PCF control.
+    
+    HOW TO USE IN CANVAS APPS:
+    1. Add an HTML text control to your app (Insert > Text > HTML text)
+    2. Set its HtmlText property to this entire content
+    3. The control can be hidden (Visible = false) as it just runs the script
+    
+    The script will:
+    - Listen for parameter requests from the TopParamsReader control
+    - Send URL parameters to the control when requested
+    - Automatically broadcast parameters on page load
+-->
+
+<script>
+(function() {
+    console.log('[TopParams Parent] Installing postMessage listener');
+    
+    window.addEventListener('message', function(event) {
+        console.log('[TopParams Parent] Message received:', event.data);
+        
+        if (event.data && event.data.type === 'requestUrlParams') {
+            console.log('[TopParams Parent] Received request for URL params');
+            
+            var urlParams = new URLSearchParams(window.location.search);
+            var paramsObject = {};
+            
+            urlParams.forEach(function(value, key) {
+                paramsObject[key] = value;
+            });
+            
+            console.log('[TopParams Parent] Sending params:', paramsObject);
+            
+            event.source.postMessage({
+                type: 'urlParams',
+                params: paramsObject
+            }, event.origin);
+        }
+    });
+    
+    console.log('[TopParams Parent] ✓ Listener installed');
+    
+    // Broadcast initial params after a short delay
+    setTimeout(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var paramsObject = {};
+        
+        urlParams.forEach(function(value, key) {
+            paramsObject[key] = value;
+        });
+        
+        console.log('[TopParams Parent] Broadcasting initial params:', paramsObject);
+        
+        var iframes = document.getElementsByTagName('iframe');
+        for (var i = 0; i < iframes.length; i++) {
+            try {
+                iframes[i].contentWindow.postMessage({
+                    type: 'urlParams',
+                    params: paramsObject
+                }, '*');
+            } catch (e) {
+                console.log('[TopParams Parent] Could not send to iframe:', e);
+            }
+        }
+    }, 500);
+})();
+</script>
+
+<div style="display:none;">TopParams Parent Listener Active</div>

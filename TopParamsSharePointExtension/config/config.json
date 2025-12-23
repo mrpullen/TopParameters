@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "top-params-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/topParamsListener/TopParamsListenerApplicationCustomizer.js",
+          "manifest": "./src/extensions/topParamsListener/TopParamsListenerApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "TopParamsListenerApplicationCustomizerStrings": "lib/extensions/topParamsListener/loc/{locale}.js"
+  }
+}

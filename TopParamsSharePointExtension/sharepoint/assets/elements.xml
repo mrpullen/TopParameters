@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <CustomAction
+        Title="TopParamsListener"
+        Description="Broadcasts URL parameters to embedded Canvas Apps via postMessage"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ClientSideComponentId="e3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d"
+        ClientSideComponentProperties="{&quot;enableLogging&quot;:true}">
+    </CustomAction>
+</Elements>

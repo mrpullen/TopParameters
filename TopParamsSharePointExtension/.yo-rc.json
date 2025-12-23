@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "version": "1.19.0",
+    "libraryName": "top-params-sharepoint-extension",
+    "libraryId": "f8a7e9c2-4b3d-4e5f-a6b7-c8d9e0f1a2b3",
+    "environment": "spo",
+    "packageManager": "npm",
+    "isCreatingSolution": true,
+    "componentType": "extension"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "top-params-sharepoint-extension-client-side-solution",
+    "id": "f8a7e9c2-4b3d-4e5f-a6b7-c8d9e0f1a2b3",
+    "version": "1.0.0.1",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": false,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.19.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "Enables URL parameter communication with embedded Canvas Apps"
+      },
+      "longDescription": {
+        "default": "This SPFx extension listens for postMessage requests from embedded Canvas Apps and provides URL parameters from the SharePoint page."
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "Top Params Listener Application Customizer",
+        "description": "Provides URL parameter bridge for embedded Canvas Apps",
+        "id": "e3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d",
+        "version": "1.0.0.0",
+        "assets": {
+          "elementManifests": [
+            "elements.xml"
+          ]
+        }
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/top-params-sharepoint-extension.sppkg"
+  }
+}

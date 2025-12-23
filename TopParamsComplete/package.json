@@ -1,0 +1,26 @@
+{
+  "name": "top-params-reader",
+  "version": "1.0.0",
+  "description": "PCF control to read parameters from top window when Canvas app is in iframe",
+  "scripts": {
+    "build": "pcf-scripts build",
+    "clean": "pcf-scripts clean",
+    "rebuild": "pcf-scripts rebuild",
+    "start": "pcf-scripts start",
+    "start:watch": "pcf-scripts start watch"
+  },
+  "dependencies": {
+    "@types/node": "^18.0.0",
+    "@types/powerapps-component-framework": "^1.3.4"
+  },
+  "devDependencies": {
+    "@microsoft/eslint-plugin-power-apps": "^0.2.9",
+    "@typescript-eslint/eslint-plugin": "^8.50.1",
+    "@typescript-eslint/parser": "^8.50.1",
+    "ajv": "^8.0.0",
+    "eslint": "^8.24.0",
+    "pcf-scripts": "^1.27.1",
+    "pcf-start": "^1.27.1",
+    "typescript": "^4.9.5"
+  }
+}

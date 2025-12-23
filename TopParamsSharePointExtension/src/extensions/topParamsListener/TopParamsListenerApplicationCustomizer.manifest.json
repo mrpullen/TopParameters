@@ -1,0 +1,21 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx/client-side-extension-manifest.schema.json",
+  "id": "e3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d",
+  "alias": "TopParamsListenerApplicationCustomizer",
+  "componentType": "Extension",
+  "extensionType": "ApplicationCustomizer",
+  "version": "*",
+  "manifestVersion": 2,
+  "requiresCustomScript": false,
+  "supportedHosts": ["SharePointWebPart", "SharePointFullPage", "TeamsPersonalApp", "TeamsTab", "SharePointPage"],
+  "preconfiguredEntries": [{
+    "groupId": "e3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d",
+    "group": { "default": "Top Params Listener" },
+    "title": { "default": "Top Params Listener Application Customizer" },
+    "description": { "default": "Enables URL parameter communication with embedded Canvas Apps" },
+    "officeFabricIconFontName": "Page",
+    "properties": {
+      "enableLogging": true
+    }
+  }]
+}

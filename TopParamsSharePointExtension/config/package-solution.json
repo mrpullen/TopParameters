@@ -3,7 +3,7 @@
   "solution": {
     "name": "top-params-sharepoint-extension-client-side-solution",
     "id": "f8a7e9c2-4b3d-4e5f-a6b7-c8d9e0f1a2b3",
-    "version": "1.0.0.1",
+    "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": false,
     "isDomainIsolated": false,

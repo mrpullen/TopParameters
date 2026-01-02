@@ -71,3 +71,44 @@ jobs:
           path: |
             TopParamsSharePointExtension/sharepoint/solution/*.sppkg
           retention-days: 7
+
+  build-solution:
+    name: Build Power Platform Solution
+    needs: [build-pcf]
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: TopParamsComplete/package.json
+      
+      - name: Install PCF dependencies
+        working-directory: TopParamsComplete
+        run: npm ci
+      
+      - name: Build PCF Control
+        working-directory: TopParamsComplete
+        run: npm run build
+      
+      - name: Build Power Platform Solution
+        working-directory: TopParamsSolution
+        run: dotnet build TopParamsSolution.cdsproj --configuration Release
+        shell: pwsh
+      
+      - name: Upload Solution Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-platform-solution-${{ github.sha }}
+          path: TopParamsSolution/bin/Release/*.zip
+          retention-days: 7

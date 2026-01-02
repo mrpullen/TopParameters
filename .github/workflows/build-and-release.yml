@@ -190,11 +190,20 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       
-      - name: Download PCF artifacts
-        uses: actions/download-artifact@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          name: pcf-control
-          path: TopParamsComplete/out/controls
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: TopParamsComplete/package.json
+      
+      - name: Install PCF dependencies
+        working-directory: TopParamsComplete
+        run: npm ci
+      
+      - name: Build PCF Control
+        working-directory: TopParamsComplete
+        run: npm run build
       
       - name: Build Power Platform Solution
         working-directory: TopParamsSolution

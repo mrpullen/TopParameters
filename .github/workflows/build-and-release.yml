@@ -89,7 +89,7 @@ jobs:
 
   create-release:
     name: Create Release
-    needs: [build-pcf, build-spfx]
+    needs: [build-pcf, build-spfx, build-solution]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     
@@ -112,6 +112,12 @@ jobs:
           name: spfx-extension
           path: release/spfx-extension
       
+      - name: Download Solution Package
+        uses: actions/download-artifact@v4
+        with:
+          name: power-platform-solution
+          path: release/solution
+      
       - name: Create release package
         run: |
           cd release
@@ -122,32 +128,40 @@ jobs:
           mkdir -p TopParameters-Complete
           cp -r pcf-control TopParameters-Complete/
           cp -r spfx-extension TopParameters-Complete/
+          cp -r solution TopParameters-Complete/
           cp ../PCF-DEPLOYMENT-GUIDE.md TopParameters-Complete/ 2>/dev/null || true
           cp ../TopParamsSharePointExtension/DEPLOYMENT.md TopParameters-Complete/SPFx-DEPLOYMENT.md 2>/dev/null || true
           zip -r TopParameters-Complete.zip TopParameters-Complete/
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprogs/action-gh-release@v1
         with:
           files: |
             release/TopParamsComplete-PCF.zip
             release/TopParamsSharePointExtension-SPFx.zip
             release/TopParameters-Complete.zip
             release/spfx-extension/*.sppkg
+            release/solution/*.zip
           body: |
             ## TopParameters Release ${{ github.ref_name }}
             
             This release contains:
+            - **Power Platform Solution** (TopParamsSolution.zip) - Complete solution ready to import
             - **PCF Control** (TopParamsComplete-PCF.zip) - Power Apps Component Framework control
             - **SPFx Extension** (TopParamsSharePointExtension-SPFx.zip) - SharePoint Framework extension
-            - **Complete Package** (TopParameters-Complete.zip) - Both components with deployment guides
+            - **Complete Package** (TopParameters-Complete.zip) - All components with deployment guides
             - **SPFx Package** (*.sppkg) - Ready to deploy to SharePoint App Catalog
             
             ### Installation
             
-            #### PCF Control
+            #### Power Platform Solution (Recommended)
+            1. Download TopParamsSolution.zip
+            2. Import into your Power Apps environment
+            3. The PCF control will be automatically included
+            
+            #### PCF Control (Standalone)
             1. Extract TopParamsComplete-PCF.zip
-            2. Import the solution into your Power Apps environment
+            2. Import the control into your Power Apps environment
             3. See PCF-DEPLOYMENT-GUIDE.md for detailed instructions
             
             #### SPFx Extension
@@ -163,14 +177,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-solution:
-    name: Build Complete Solution
+    name: Build Power Platform Solution
     needs: [build-pcf]
     runs-on: windows-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
       
       - name: Download PCF artifacts
         uses: actions/download-artifact@v4
@@ -178,11 +196,14 @@ jobs:
           name: pcf-control
           path: TopParamsComplete/out/controls
       
-      # This step would package the complete Power Platform solution
-      # Requires additional setup with Power Platform Build Tools
-      - name: Package Solution (Optional)
+      - name: Build Power Platform Solution
         working-directory: TopParamsSolution
-        run: |
-          echo "Solution packaging would happen here"
-          echo "Requires Power Platform Build Tools or PAC CLI"
+        run: dotnet build TopParamsSolution.cdsproj --configuration Release
         shell: pwsh
+      
+      - name: Upload Solution Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-platform-solution
+          path: TopParamsSolution/bin/Release/*.zip
+          retention-days: 30

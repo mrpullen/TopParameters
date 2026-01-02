@@ -1,4 +1,4 @@
-import { IInputs, IOutputs } from "../generated/ManifestTypes";
+import { IInputs, IOutputs } from "./generated/ManifestTypes";
 
 export class TopParamsReader implements ComponentFramework.StandardControl<IInputs, IOutputs> {
     private _container: HTMLDivElement;

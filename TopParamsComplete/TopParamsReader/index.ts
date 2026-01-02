@@ -329,7 +329,12 @@ export class TopParamsReader implements ComponentFramework.StandardControl<IInpu
         if (this._statusDiv && this._paramsDiv) {
             this._statusDiv.style.display = showDetails ? "block" : "none";
             this._paramsDiv.style.display = showDetails ? "block" : "none";
-            this._compactDiv.style.display = showDetails ? "none" : "block";
+            this._compactDiv.style.display = "none"; // Always hide compact view
+        }
+        
+        // Make entire container invisible when showDetails is false
+        if (this._container) {
+            this._container.style.display = showDetails ? "block" : "none";
         }
         
         // Try to get parameters again

@@ -1,0 +1,73 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-pcf:
+    name: Build PCF Control
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: TopParamsComplete/package.json
+      
+      - name: Install dependencies
+        working-directory: TopParamsComplete
+        run: npm ci
+      
+      - name: Build PCF Control
+        working-directory: TopParamsComplete
+        run: npm run build
+      
+      - name: Upload PCF artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pcf-control-${{ github.sha }}
+          path: TopParamsComplete/out/controls/**/*
+          retention-days: 7
+
+  build-spfx:
+    name: Build SPFx Extension
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: TopParamsSharePointExtension/package.json
+      
+      - name: Install dependencies
+        working-directory: TopParamsSharePointExtension
+        run: npm ci
+      
+      - name: Build SPFx Extension
+        working-directory: TopParamsSharePointExtension
+        run: npm run ship
+      
+      - name: Upload SPFx artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spfx-extension-${{ github.sha }}
+          path: |
+            TopParamsSharePointExtension/sharepoint/solution/*.sppkg
+          retention-days: 7

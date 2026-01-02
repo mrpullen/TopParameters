@@ -1,0 +1,188 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-pcf:
+    name: Build PCF Control
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: TopParamsComplete/package.json
+      
+      - name: Install dependencies
+        working-directory: TopParamsComplete
+        run: npm ci
+      
+      - name: Build PCF Control
+        working-directory: TopParamsComplete
+        run: npm run build
+      
+      - name: List output files
+        working-directory: TopParamsComplete
+        run: dir out\controls -Recurse
+        shell: pwsh
+      
+      - name: Upload PCF artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pcf-control
+          path: TopParamsComplete/out/controls/**/*
+          retention-days: 30
+
+  build-spfx:
+    name: Build SPFx Extension
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: TopParamsSharePointExtension/package.json
+      
+      - name: Install dependencies
+        working-directory: TopParamsSharePointExtension
+        run: npm ci
+      
+      - name: Build and package SPFx Extension
+        working-directory: TopParamsSharePointExtension
+        run: npm run ship
+      
+      - name: List output files
+        working-directory: TopParamsSharePointExtension
+        run: |
+          echo "SharePoint Packages:"
+          find sharepoint/solution -type f
+          echo "Distribution files:"
+          find temp/deploy -type f 2>/dev/null || echo "No temp/deploy directory"
+      
+      - name: Upload SPFx package
+        uses: actions/upload-artifact@v4
+        with:
+          name: spfx-extension
+          path: |
+            TopParamsSharePointExtension/sharepoint/solution/*.sppkg
+            TopParamsSharePointExtension/temp/deploy/**/*
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    needs: [build-pcf, build-spfx]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download PCF artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: pcf-control
+          path: release/pcf-control
+      
+      - name: Download SPFx artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: spfx-extension
+          path: release/spfx-extension
+      
+      - name: Create release package
+        run: |
+          cd release
+          zip -r TopParamsComplete-PCF.zip pcf-control/
+          zip -r TopParamsSharePointExtension-SPFx.zip spfx-extension/
+          
+          # Create a combined release zip
+          mkdir -p TopParameters-Complete
+          cp -r pcf-control TopParameters-Complete/
+          cp -r spfx-extension TopParameters-Complete/
+          cp ../PCF-DEPLOYMENT-GUIDE.md TopParameters-Complete/ 2>/dev/null || true
+          cp ../TopParamsSharePointExtension/DEPLOYMENT.md TopParameters-Complete/SPFx-DEPLOYMENT.md 2>/dev/null || true
+          zip -r TopParameters-Complete.zip TopParameters-Complete/
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/TopParamsComplete-PCF.zip
+            release/TopParamsSharePointExtension-SPFx.zip
+            release/TopParameters-Complete.zip
+            release/spfx-extension/*.sppkg
+          body: |
+            ## TopParameters Release ${{ github.ref_name }}
+            
+            This release contains:
+            - **PCF Control** (TopParamsComplete-PCF.zip) - Power Apps Component Framework control
+            - **SPFx Extension** (TopParamsSharePointExtension-SPFx.zip) - SharePoint Framework extension
+            - **Complete Package** (TopParameters-Complete.zip) - Both components with deployment guides
+            - **SPFx Package** (*.sppkg) - Ready to deploy to SharePoint App Catalog
+            
+            ### Installation
+            
+            #### PCF Control
+            1. Extract TopParamsComplete-PCF.zip
+            2. Import the solution into your Power Apps environment
+            3. See PCF-DEPLOYMENT-GUIDE.md for detailed instructions
+            
+            #### SPFx Extension
+            1. Upload the .sppkg file to your SharePoint App Catalog
+            2. Deploy and activate the extension
+            3. See SPFx-DEPLOYMENT.md for detailed instructions
+            
+            ### Changes
+            - Built from commit: ${{ github.sha }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-solution:
+    name: Build Complete Solution
+    needs: [build-pcf]
+    runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download PCF artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: pcf-control
+          path: TopParamsComplete/out/controls
+      
+      # This step would package the complete Power Platform solution
+      # Requires additional setup with Power Platform Build Tools
+      - name: Package Solution (Optional)
+        working-directory: TopParamsSolution
+        run: |
+          echo "Solution packaging would happen here"
+          echo "Requires Power Platform Build Tools or PAC CLI"
+        shell: pwsh
